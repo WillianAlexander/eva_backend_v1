@@ -14,13 +14,15 @@ import { EventosModule } from './modules/eventos.module';
 import { Eventos } from './entities/eventos.entity';
 import { Evaluaciones } from './entities/evaluaciones.entity';
 import { EvaluacionesModule } from './modules/evaluaciones.module';
+import { EventoparticipantesModule } from './modules/eventoparticipantes.module';
+import { EventoParticipantes } from './entities/eventoparticipantes.entity';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'localhost',
-      port: 5433,
+      port: 5432,
       username: 'postgres',
       password: 'root',
       database: 'EVA',
@@ -32,6 +34,7 @@ import { EvaluacionesModule } from './modules/evaluaciones.module';
         Participantes,
         Eventos,
         Evaluaciones,
+        EventoParticipantes,
       ],
       synchronize: false,
       autoLoadEntities: true,
@@ -42,6 +45,7 @@ import { EvaluacionesModule } from './modules/evaluaciones.module';
     ParticipantesModule,
     EventosModule,
     EvaluacionesModule,
+    EventoparticipantesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

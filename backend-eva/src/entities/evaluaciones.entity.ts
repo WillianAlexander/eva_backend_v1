@@ -10,9 +10,16 @@ import { Eventos } from './eventos.entity';
 import { Participantes } from './participantes.entity';
 
 @Entity({ name: 'evaluaciones' })
-@Check(`"responsabilidad" BETWEEN 0 AND 10`)
-@Check(`"comunicacion" BETWEEN 0 AND 10`)
-@Check(`"gestion" BETWEEN 0 AND 10`)
+@Check(`"criterio1" BETWEEN 0 AND 10`)
+@Check(`"criterio2" BETWEEN 0 AND 10`)
+@Check(`"criterio3" BETWEEN 0 AND 10`)
+@Check(`"criterio4" BETWEEN 0 AND 10`)
+@Check(`"criterio5" BETWEEN 0 AND 10`)
+@Check(`"criterio6" BETWEEN 0 AND 10`)
+@Check(`"criterio7" BETWEEN 0 AND 10`)
+@Check(`"criterio8" BETWEEN 0 AND 10`)
+@Check(`"criterio9" BETWEEN 0 AND 10`)
+@Check(`"criterio10" BETWEEN 0 AND 10`)
 @Check(`"evaluador_id" <> "evaluado_id"`)
 export class Evaluaciones {
   @PrimaryColumn({ type: 'date', nullable: false })
@@ -34,13 +41,34 @@ export class Evaluaciones {
   evaluado_id: Participantes;
 
   @Column({ type: 'int', nullable: false })
-  responsabilidad: number;
+  criterio1: number;
 
   @Column({ type: 'int', nullable: false })
-  comunicacion: number;
+  criterio2: number;
 
   @Column({ type: 'int', nullable: false })
-  gestion: number;
+  criterio3: number;
+
+  @Column({ type: 'int', nullable: false })
+  criterio4: number;
+
+  @Column({ type: 'int', nullable: false })
+  criterio5: number;
+
+  @Column({ type: 'int', nullable: false })
+  criterio6: number;
+
+  @Column({ type: 'int', nullable: false })
+  criterio7: number;
+
+  @Column({ type: 'int', nullable: false })
+  criterio8: number;
+
+  @Column({ type: 'int', nullable: false })
+  criterio9: number;
+
+  @Column({ type: 'int', nullable: false })
+  criterio10: number;
 
   @Column({ type: 'varchar', length: 1000, nullable: false })
   comentario: string;
