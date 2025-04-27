@@ -6,7 +6,7 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { Eventos } from './eventos.entity';
-import { Usuarios } from './usuarios.entity';
+import { Departamentos } from './departamentos.entity';
 
 @Entity({ name: 'eventoparticipantes' })
 export class EventoParticipantes {
@@ -17,7 +17,7 @@ export class EventoParticipantes {
   evento_id: number;
 
   @PrimaryColumn()
-  participante_id: string;
+  participante_id: number;
 
   @ManyToOne(() => Eventos, (evento) => evento.id, {
     onDelete: 'CASCADE',
@@ -25,9 +25,9 @@ export class EventoParticipantes {
   @JoinColumn({ name: 'evento_id' })
   evento: Eventos;
 
-  @ManyToOne(() => Usuarios, (usuario) => usuario.usuario, {
+  @ManyToOne(() => Departamentos, (departamento) => departamento.id, {
     onDelete: 'CASCADE',
   })
-  @JoinColumn({ name: 'participante_id', referencedColumnName: 'usuario' })
-  usuario: Usuarios;
+  @JoinColumn({ name: 'participante_id', referencedColumnName: 'id' })
+  departamento: Departamentos;
 }

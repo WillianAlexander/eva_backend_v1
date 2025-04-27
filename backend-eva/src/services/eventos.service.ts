@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { CrearEventoDto } from 'src/dto/evento/crear-evento.dto';
 import { Eventos } from 'src/entities/eventos.entity';
 import { DataSource } from 'typeorm';
 
@@ -16,6 +17,13 @@ export class EventosService {
     return this.datasource.manager.findOneBy(Eventos, {
       id: id,
       fhasta: new Date('2999-12-31 00:00:00'),
+    });
+  }
+
+  createEvent(dto: CrearEventoDto) {
+    return this.datasource.transaction(async (manager) => {
+      const evento = manager.create(Eventos, { ...dto });
+      return manager.save(evento);
     });
   }
 }

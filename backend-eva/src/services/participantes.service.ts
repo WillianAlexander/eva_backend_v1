@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CrearParticipanteDto } from 'src/dto/create-participante.dto';
+import { CrearParticipanteDto } from 'src/dto/participante/create-participante.dto';
 import { Participantes } from 'src/entities/participantes.entity';
 import { DataSource } from 'typeorm';
 

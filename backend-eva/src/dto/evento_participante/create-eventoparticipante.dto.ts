@@ -6,6 +6,6 @@ export class CreateEventoParticipante {
   evento_id: number;
 
   @IsNotEmpty()
-  @IsString()
-  participante_id: string;
+  @IsNumber()
+  participante_id: number;
 }

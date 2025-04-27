@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
-import { IsEmail, IsNotEmpty, Length } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsNumber, Length } from 'class-validator';
 
 export class CreateUsuarioDto {
   @IsNotEmpty()
@@ -16,8 +16,4 @@ export class CreateUsuarioDto {
 
   @IsEmail()
   correo: string;
-
-  @Length(6, 50)
-  password: string;
-  rolId?: number;
 }

@@ -1,28 +1,33 @@
 import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
-import { CreateUsuarioDto } from 'src/dto/create-usuario.dto';
+import { CreateUsuarioDto } from 'src/dto/usuario/create-usuario.dto';
 import { UsuariosService } from 'src/services/usuarios.service';
 
 @Controller('usuarios')
 export class UsuariosController {
-  constructor(private usuarioService: UsuariosService) {}
+  constructor(private usuariosService: UsuariosService) {}
 
   @Get()
   findAll() {
-    return this.usuarioService.findAll();
+    return this.usuariosService.findAll();
   }
 
   @Get(':usuario')
   findOneById(@Param('usuario') usuario: string) {
-    return this.usuarioService.findOneById(usuario);
+    return this.usuariosService.findOneById(usuario);
+  }
+
+  @Get('departamento/:id')
+  findUsersByDepartment(@Param('id') id: number) {
+    return this.usuariosService.findUsersByDepartment(id);
   }
 
   @Post()
   createUser(@Body() dto: CreateUsuarioDto) {
-    return this.usuarioService.createuser(dto);
+    return this.usuariosService.createuser(dto);
   }
 
   @Delete(':usuario')
   remove(@Param('usuario') usuario: string) {
-    return this.usuarioService.remove(usuario);
+    return this.usuariosService.remove(usuario);
   }
 }

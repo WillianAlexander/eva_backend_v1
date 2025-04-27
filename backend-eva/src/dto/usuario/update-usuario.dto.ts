@@ -9,8 +9,5 @@ export class UpdateUsuarioDto {
   @IsEmail()
   correo?: string;
 
-  @Length(6, 50)
-  password?: string;
-
   rolId?: number;
 }

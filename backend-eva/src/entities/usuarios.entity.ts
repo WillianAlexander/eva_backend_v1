@@ -1,4 +1,12 @@
-import { Column, Entity, PrimaryColumn, VersionColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  PrimaryColumn,
+  VersionColumn,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
+import { Departamentos } from './departamentos.entity';
 
 @Entity({ name: 'usuarios' })
 export class Usuarios {
@@ -17,11 +25,20 @@ export class Usuarios {
   @Column()
   correo: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: 2 })
   rol_id: number;
 
   @Column({ nullable: true })
   departamento_id: number;
+
+  @ManyToOne(() => Departamentos, (departamento) => departamento.id, {
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({ name: 'departamento_id', referencedColumnName: 'id' })
+  departamento: Departamentos;
+
+  @Column({ type: 'varchar', default: 'ACT' })
+  estado_usuario: string;
 
   @PrimaryColumn({ type: 'timestamp', default: () => '2999-12-31 00:00:00' })
   fhasta: Date;
