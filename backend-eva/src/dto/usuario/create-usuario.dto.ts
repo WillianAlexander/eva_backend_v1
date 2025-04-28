@@ -16,4 +16,7 @@ export class CreateUsuarioDto {
 
   @IsEmail()
   correo: string;
+
+  @IsNumber()
+  departamento_id: number;
 }
