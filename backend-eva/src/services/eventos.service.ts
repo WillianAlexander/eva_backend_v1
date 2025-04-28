@@ -20,6 +20,13 @@ export class EventosService {
     });
   }
 
+  findOneByState(state: string) {
+    return this.datasource.manager.findBy(Eventos, {
+      estado: state,
+      fhasta: new Date('2999-12-31 00:00:00'),
+    });
+  }
+
   createEvent(dto: CrearEventoDto) {
     return this.datasource.transaction(async (manager) => {
       const evento = manager.create(Eventos, { ...dto });

@@ -1,8 +1,18 @@
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { CreateUsuarioDto } from 'src/dto/usuario/create-usuario.dto';
 import { UsuariosService } from 'src/services/usuarios.service';
+import { JwtAuthGuard } from 'src/guards/jwt.guard';
 
 @Controller('usuarios')
+@UseGuards(JwtAuthGuard) // Aplica el guard a todas las rutas del controlador
 export class UsuariosController {
   constructor(private usuariosService: UsuariosService) {}
 

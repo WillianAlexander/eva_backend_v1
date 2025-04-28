@@ -22,7 +22,7 @@ import { EventoParticipantes } from './entities/eventoparticipantes.entity';
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'localhost',
-      port: 5432,
+      port: 5433,
       username: 'postgres',
       password: 'root',
       database: 'EVA',

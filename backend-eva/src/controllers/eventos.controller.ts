@@ -16,6 +16,11 @@ export class EventosController {
     return this.eventoService.findOneById(id);
   }
 
+  @Get('estado/:state')
+  findOneByState(@Param('state') state: string) {
+    return this.eventoService.findOneByState(state);
+  }
+
   @Post()
   createEvent(@Body() dto: CrearEventoDto) {
     return this.eventoService.createEvent(dto);
