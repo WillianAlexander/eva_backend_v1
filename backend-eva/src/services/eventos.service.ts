@@ -8,8 +8,9 @@ export class EventosService {
   constructor(private datasource: DataSource) {}
 
   findAll() {
-    return this.datasource.manager.findBy(Eventos, {
-      fhasta: new Date('2999-12-31 00:00:00'),
+    return this.datasource.manager.find(Eventos, {
+      where: { fhasta: new Date('2999-12-31 00:00:00') },
+      order: { fevento: 'DESC' },
     });
   }
 
