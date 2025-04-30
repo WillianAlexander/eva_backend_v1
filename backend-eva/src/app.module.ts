@@ -16,6 +16,8 @@ import { Evaluaciones } from './entities/evaluaciones.entity';
 import { EvaluacionesModule } from './modules/evaluaciones.module';
 import { EventoparticipantesModule } from './modules/eventoparticipantes.module';
 import { EventoParticipantes } from './entities/eventoparticipantes.entity';
+import { CriteriosDetalle } from './entities/criterios-detalle.entity';
+import { CriteriosDetalleModule } from './modules/criterios_detalle.module';
 
 @Module({
   imports: [
@@ -35,6 +37,7 @@ import { EventoParticipantes } from './entities/eventoparticipantes.entity';
         Eventos,
         Evaluaciones,
         EventoParticipantes,
+        CriteriosDetalle,
       ],
       synchronize: false,
       autoLoadEntities: true,
@@ -46,6 +49,7 @@ import { EventoParticipantes } from './entities/eventoparticipantes.entity';
     EventosModule,
     EvaluacionesModule,
     EventoparticipantesModule,
+    CriteriosDetalleModule,
   ],
   controllers: [AppController],
   providers: [AppService],
