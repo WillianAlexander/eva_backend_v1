@@ -7,7 +7,7 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { Eventos } from './eventos.entity';
-import { Participantes } from './participantes.entity';
+import { Usuarios } from './usuarios.entity';
 
 @Entity({ name: 'evaluaciones' })
 @Check(`"criterio1" BETWEEN 0 AND 10`)
@@ -31,44 +31,44 @@ export class Evaluaciones {
   evento_id: Eventos;
 
   @PrimaryColumn({ type: 'int', nullable: false })
-  @ManyToOne(() => Participantes, { nullable: false })
-  @JoinColumn({ name: 'evaluador_id' }) // Relación con la columna EVALUADOR_ID
-  evaluador_id: Participantes;
+  @ManyToOne(() => Usuarios, { nullable: false })
+  @JoinColumn({ name: 'evaluador_id', referencedColumnName: 'usuario' }) // Relación con la columna EVALUADOR_ID
+  evaluador_id: Usuarios;
 
   @PrimaryColumn({ type: 'int', nullable: false })
-  @ManyToOne(() => Participantes, { nullable: false })
-  @JoinColumn({ name: 'evaluado_id' }) // Relación con la columna EVALUADO_ID
-  evaluado_id: Participantes;
+  // @ManyToOne(() => Participantes, { nullable: false })
+  // @JoinColumn({ name: 'evaluado_id' }) // Relación con la columna EVALUADO_ID
+  evaluado_id: number;
 
-  @Column({ type: 'int', nullable: false })
-  criterio1: number;
+  @Column({ type: 'int', nullable: true })
+  criterio1?: number;
 
-  @Column({ type: 'int', nullable: false })
-  criterio2: number;
+  @Column({ type: 'int', nullable: true })
+  criterio2?: number;
 
-  @Column({ type: 'int', nullable: false })
-  criterio3: number;
+  @Column({ type: 'int', nullable: true })
+  criterio3?: number;
 
-  @Column({ type: 'int', nullable: false })
-  criterio4: number;
+  @Column({ type: 'int', nullable: true })
+  criterio4?: number;
 
-  @Column({ type: 'int', nullable: false })
-  criterio5: number;
+  @Column({ type: 'int', nullable: true })
+  criterio5?: number;
 
-  @Column({ type: 'int', nullable: false })
-  criterio6: number;
+  @Column({ type: 'int', nullable: true })
+  criterio6?: number;
 
-  @Column({ type: 'int', nullable: false })
-  criterio7: number;
+  @Column({ type: 'int', nullable: true })
+  criterio7?: number;
 
-  @Column({ type: 'int', nullable: false })
-  criterio8: number;
+  @Column({ type: 'int', nullable: true })
+  criterio8?: number;
 
-  @Column({ type: 'int', nullable: false })
-  criterio9: number;
+  @Column({ type: 'int', nullable: true })
+  criterio9?: number;
 
-  @Column({ type: 'int', nullable: false })
-  criterio10: number;
+  @Column({ type: 'int', nullable: true })
+  criterio10?: number;
 
   @Column({ type: 'varchar', length: 1000, nullable: false })
   comentario: string;

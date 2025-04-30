@@ -10,7 +10,7 @@ import { Departamentos } from './departamentos.entity';
 
 @Entity({ name: 'usuarios' })
 export class Usuarios {
-  @PrimaryColumn()
+  @PrimaryColumn({ unique: true })
   usuario: string;
 
   @Column()
@@ -28,7 +28,7 @@ export class Usuarios {
   @Column({ nullable: true, default: 2 })
   rol_id: number;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, unique: true })
   departamento_id: number;
 
   @ManyToOne(() => Departamentos, (departamento) => departamento.id, {
