@@ -136,3 +136,36 @@ FROM eva.crosstab(
   anterior    INT,
   anterior2   INT
 );
+
+-- POSICIONES SEGUN EL PUNTAJE
+
+SELECT 
+  dp.nombre as evaluado_id,
+  actual,
+  DENSE_RANK() OVER (ORDER BY actual, evaluado_id DESC) AS posicion_actual,
+  anterior,
+  CASE WHEN anterior = 0 THEN ' ' ELSE DENSE_RANK() OVER (ORDER BY anterior, evaluado_id DESC)::text END posicion_anterior,
+  anterior2,
+  CASE WHEN anterior2 = 0 THEN ' ' ELSE DENSE_RANK() OVER (ORDER BY anterior2, evaluado_id DESC)::text END posicion_anterior2
+FROM (
+  SELECT 
+    evaluado_id, 
+    COALESCE(actual, 0) AS actual, 
+    COALESCE(anterior, 0) AS anterior, 
+    COALESCE(anterior2, 0) AS anterior2 
+  FROM eva.crosstab(
+    $$SELECT 
+        evaluado_id, 
+        evento_id, 
+        (criterio1 + criterio2 + criterio3 + criterio4) AS total
+      FROM eva.evaluaciones
+      WHERE evento_id <= 6
+      ORDER BY evaluado_id, evento_id DESC$$
+  ) AS ct (
+    evaluado_id INT,
+    actual      INT,
+    anterior    INT,
+    anterior2   INT
+  )
+) AS datos
+INNER JOIN eva.departamentos dp on (dp.id = evaluado_id and fhasta > current_date);
