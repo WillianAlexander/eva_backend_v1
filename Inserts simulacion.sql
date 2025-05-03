@@ -55,18 +55,10 @@ AND evaluado.usuario IN (
 SELECT * FROM EVA.CRITERIOS_DETALLE
 
 INSERT INTO EVA.CRITERIOS_DETALLE (DESCRIPCION) VALUES 
-('Trabajo en equipo'),
-('Comunicación'),
-('Puntualidad'),
-('Resolución de problemas'),
-('Liderazgo'),
-('Creatividad'),
-('Responsabilidad'),
-('Adaptabilidad'),
-('Colaboración'),
-('Orientación a resultados');
-
-
+('PRESENTACION'),
+('CONTENIDO'),
+('GESTION'),
+('MEJORA');
 
 SELECT 
     e.FEVALUACION,
@@ -81,3 +73,18 @@ JOIN EVA.PARTICIPANTES p ON e.EVALUADOR_ID = p.ID
 WHERE e.EVALUADO_ID = :participante_id;
 
 
+SELECT evaluado_id, COALESCE(actual, 0) as actual, COALESCE(anterior, 0) as anterior, COALESCE(anterior2, 0) as anterior2 
+FROM eva.crosstab(
+  $$SELECT 
+      evaluado_id, 
+      evento_id, 
+      (criterio1 + criterio2 + criterio3 + criterio4) AS total
+    FROM eva.evaluaciones
+    WHERE evento_id <= 6
+    ORDER BY evaluado_id, evento_id desc$$
+) AS ct (
+  evaluado_id INT,
+  actual      INT,
+  anterior    INT,
+  anterior2   INT
+);

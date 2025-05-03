@@ -25,4 +25,9 @@ export class EventosController {
   createEvent(@Body() dto: CrearEventoDto) {
     return this.eventoService.createEvent(dto);
   }
+
+  @Get('/detalles/:id')
+  getDetailEvent(@Param('id') id: number) {
+    return this.eventoService.getDetailEvent(id);
+  }
 }

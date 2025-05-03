@@ -109,3 +109,30 @@ ALTER TABLE IF EXISTS EVA.CRITERIOS_DETALLE
 
 -- CREATE INDEX IDX_EVAL_REUNION ON EVA.EVALUACIONES(EVENTO_ID);
 -- CREATE INDEX IDX_EVAL_EVALUADO ON EVA.EVALUACIONES(EVALUADO_ID);
+
+-- pasar la funcion al squema
+ALTER EXTENSION tablefunc SET SCHEMA eva;
+
+-- La función crosstab es específica de PostgreSQL y requiere que la extensión tablefunc esté habilitada en la base de datos.
+CREATE EXTENSION IF NOT EXISTS tablefunc;
+
+-- Si la tabla eva.evaluaciones contiene una gran cantidad de datos, esta consulta puede ser costosa. 
+CREATE INDEX idx_evento_id ON eva.evaluaciones (evento_id);
+CREATE INDEX idx_evaluado_id ON eva.evaluaciones (evaluado_id);
+
+-- consulta detalles
+SELECT evaluado_id, COALESCE(actual, 0) as actual, COALESCE(anterior, 0) as anterior, COALESCE(anterior2, 0) as anterior2 
+FROM eva.crosstab(
+  $$SELECT 
+      evaluado_id, 
+      evento_id, 
+      (criterio1 + criterio2 + criterio3 + criterio4) AS total
+    FROM eva.evaluaciones
+    WHERE evento_id <= 6
+    ORDER BY evaluado_id, evento_id desc$$
+) AS ct (
+  evaluado_id INT,
+  actual      INT,
+  anterior    INT,
+  anterior2   INT
+);
