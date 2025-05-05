@@ -88,3 +88,20 @@ FROM eva.crosstab(
   anterior    INT,
   anterior2   INT
 );
+
+INSERT INTO EVA.EVALUACIONES (evento_id, fevaluacion, evaluador_id, evaluado_id, criterio1, criterio2, criterio3, criterio4, comentario)
+VALUES
+(12, '2025-10-06', 'ESANMARTIN', 6, 10, 10, 10, 10, ''),
+(12, '2025-10-06', 'GLITUMA', 6, 10, 10, 10, 10, ''),
+(12, '2025-10-06', 'LGALINDO', 6, 10, 10, 10, 10, ''),
+(12, '2025-10-06', 'JLEON', 6, 10, 10, 10, 10, ''),
+(12, '2025-10-06', 'SMOSCOSO', 6, 10, 10, 10, 10, ''),
+(12, '2025-10-06', 'MLLIVICHUZC', 6, 10, 10, 10, 10, ''),
+(12, '2025-10-06', 'CCORREA', 6, 10, 10, 10, 10, ''),
+(12, '2025-10-06', 'ana.martinez', 6, 10, 10, 10, 10, ''),
+(12, '2025-10-06', 'lucia.gomez', 6, 10, 10, 10, 10, ''),
+(12, '2025-10-06', 'miguel.torres', 6, 10, 10, 10, 10, ''),
+(12, '2025-10-06', 'CVALDIVIEZO', 6, 10, 10, 10, 10, ''),
+(11, '2025-10-06', 'JYUNGA', 6, 7, 2, 8, 4, ''),
+(12, '2025-10-06', 'valeria.fernandez', 6, 10, 10, 10, 10, ''),
+(12, '2025-10-06', 'carlos.ramirez', 6, 10, 10, 10, 10, '')
