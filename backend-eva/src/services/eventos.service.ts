@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 import { Injectable } from '@nestjs/common';
 import { CrearEventoDto } from 'src/dto/evento/crear-evento.dto';
 import { Eventos } from 'src/entities/eventos.entity';
@@ -38,28 +40,23 @@ export class EventosService {
   async getDetailEvent(eventoid: number) {
     try {
       const sql: string = `
-        SELECT evaluado_id,
-          SUM(actual) as actual,
-          SUM(posicion_actual) as posicion_actual,
-          SUM(anterior) as anterior,
-          SUM(posicion_anterior) as posicion_anterior
-          FROM (SELECT
-            dp.nombre as evaluado_id,
-            actual,
-            DENSE_RANK() OVER (ORDER BY fila, actual DESC) AS posicion_actual,
-            anterior,
-            0 posicion_anterior
-          FROM (
-            SELECT
+           SELECT 
+           NOMBRE as evaluado_id,
+           SUM(ACTUAL) as ACTUAL, 
+           SUM(FILA) as posicion_actual,
+           SUM(ANTERIOR) as ANTERIOR,
+           SUM(FILA2) as posicion_anterior
+           FROM ((SELECT
               ROW_NUMBER() OVER (ORDER BY actual DESC) FILA,
-              evaluado_id, 
-              COALESCE(actual, 0) AS actual, 
+              dp.NOMBRE, 
+              COALESCE(actual, 0) AS actual,
+              0 FILA2,
               COALESCE(anterior, 0) AS anterior
-            FROM eva.crosstab(
-              $$SELECT 
+            FROM (SELECT 
                   evaluado_id, 
                   evento_id, 
-                  (criterio1 + criterio2 + criterio3 + criterio4) AS total
+                  SUM(criterio1 + criterio2 + criterio3 + criterio4) AS actual,
+                  0 anterior
                 FROM eva.evaluaciones
                 WHERE evento_id = ${eventoid}
                 AND EXISTS (
@@ -67,32 +64,22 @@ export class EventosService {
                   FROM eva.evaluaciones e2 
                   WHERE e2.evento_id = ${eventoid}
                 )
-                ORDER BY evaluado_id, evento_id DESC$$
-            ) AS ct (
-              evaluado_id INT,
-              actual      INT,
-              anterior    INT
-            )
-          ) AS datos
-          INNER JOIN eva.departamentos dp on (dp.id = evaluado_id and fhasta > current_date)
-          UNION
-          SELECT 
-            dp.nombre as evaluado_id,
-            0 actual,
-            0 posicion_actual,
-            anterior,
-            DENSE_RANK() OVER (ORDER BY fila2, anterior DESC) AS posicion_anterior
-          FROM (
-            SELECT
-              evaluado_id, 
+                GROUP BY evaluado_id, evento_id)
+                INNER JOIN eva.departamentos dp on (dp.id = evaluado_id and fhasta > current_date)
+                ORDER BY actual DESC)
+                UNION
+            (SELECT
+              0 FILA,
+              dp.NOMBRE, 
               COALESCE(actual, 0) AS actual,
-              ROW_NUMBER() OVER (ORDER BY anterior DESC) FILA2, 
+              ROW_NUMBER() OVER (ORDER BY anterior DESC) FILA2,
               COALESCE(anterior, 0) AS anterior
-            FROM eva.crosstab(
-              $$SELECT 
+            FROM (
+              SELECT 
                   evaluado_id, 
                   evento_id, 
-                  (criterio1 + criterio2 + criterio3 + criterio4) AS total
+                  0 actual,
+                  SUM(criterio1 + criterio2 + criterio3 + criterio4) as anterior
                 FROM eva.evaluaciones
                 WHERE evento_id < ${eventoid}
                 AND EXISTS (
@@ -100,16 +87,12 @@ export class EventosService {
                   FROM eva.evaluaciones e2 
                   WHERE e2.evento_id = ${eventoid}
                 )
-                ORDER BY evaluado_id, evento_id DESC$$
-            ) AS ct (
-              evaluado_id INT,
-              actual      INT,
-              anterior    INT
-            )
-          ) AS datos
-          INNER JOIN eva.departamentos dp on (dp.id = evaluado_id and fhasta > current_date))
-          GROUP BY evaluado_id
-          ORDER BY posicion_actual
+                GROUP BY evaluado_id, evento_id
+                ORDER BY evaluado_id, evento_id DESC
+              )
+              INNER JOIN eva.departamentos dp on (dp.id = evaluado_id and fhasta > current_date)))
+              GROUP BY evaluado_id
+              ORDER BY SUM(FILA) ASC
       `;
 
       console.log(`eventoid: ${eventoid}`);

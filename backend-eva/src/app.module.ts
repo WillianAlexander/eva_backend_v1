@@ -24,7 +24,7 @@ import { CriteriosDetalleModule } from './modules/criterios_detalle.module';
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'localhost',
-      port: 5432,
+      port: 5433,
       username: 'postgres',
       password: 'root',
       database: 'EVA',
