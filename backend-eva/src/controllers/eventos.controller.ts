@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
 import { CrearEventoDto } from 'src/dto/evento/crear-evento.dto';
 import { EventosService } from 'src/services/eventos.service';
 
@@ -11,14 +11,19 @@ export class EventosController {
     return this.eventoService.findAll();
   }
 
-  @Get(':id')
-  findOneById(@Param('id') id: number) {
-    return this.eventoService.findOneById(id);
+  @Get('rates')
+  getRates() {
+    return this.eventoService.getRates();
   }
 
   @Get('estado/:state')
   findOneByState(@Param('state') state: string) {
     return this.eventoService.findOneByState(state);
+  }
+
+  @Get(':id')
+  findOneById(@Param('id') id: number) {
+    return this.eventoService.findOneById(id);
   }
 
   @Post()
@@ -29,5 +34,10 @@ export class EventosController {
   @Get('/detalles/:id')
   getDetailEvent(@Param('id') id: number) {
     return this.eventoService.getDetailEvent(id);
+  }
+
+  @Patch('/cerrar/:id')
+  closEvent(@Param('id') id: number) {
+    return this.eventoService.closeEvent(id);
   }
 }
