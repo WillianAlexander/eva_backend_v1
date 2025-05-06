@@ -81,7 +81,7 @@ export class EventosService {
                   0 actual,
                   SUM(criterio1 + criterio2 + criterio3 + criterio4) as anterior
                 FROM eva.evaluaciones
-                WHERE evento_id < ${eventoid}
+                WHERE evento_id = (SELECT max(id) from eva.eventos where id < ${eventoid} and fhasta > current_date)
                 AND EXISTS (
                   SELECT 1
                   FROM eva.evaluaciones e2 
