@@ -1,5 +1,19 @@
-import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+import {
+  Body,
+  Controller,
+  Get,
+  HttpException,
+  HttpStatus,
+  Param,
+  Patch,
+  Post,
+} from '@nestjs/common';
 import { CrearEventoDto } from 'src/dto/evento/crear-evento.dto';
+import { Eventos } from 'src/entities/eventos.entity';
 import { EventosService } from 'src/services/eventos.service';
 
 @Controller('eventos')
@@ -39,5 +53,23 @@ export class EventosController {
   @Patch('/cerrar/:id')
   closEvent(@Param('id') id: number) {
     return this.eventoService.closeEvent(id);
+  }
+
+  @Patch('/actualizar/:id')
+  async updateEvent(
+    @Param('id') id: number,
+    @Body() partialEvent: Partial<Eventos>,
+  ) {
+    try {
+      return await this.eventoService.updateEvent(id, partialEvent);
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          message: error.message || 'Error updating event',
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
   }
 }

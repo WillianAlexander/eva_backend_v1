@@ -37,4 +37,22 @@ export class EventoparticipantesService {
       return manager.save(eventParticipant);
     });
   }
+
+  async deleteParticipant(eventoId: number, participanteId: number) {
+    return this.datasource.transaction(async (manager) => {
+      // Busca el registro de EventoParticipantes
+      const eventParticipant = await manager.findOne(EventoParticipantes, {
+        where: { evento_id: eventoId, participante_id: participanteId },
+      });
+
+      if (!eventParticipant) {
+        throw new Error(
+          `No se encontró el participante con ID ${participanteId} en el evento con ID ${eventoId}.`,
+        );
+      }
+
+      // Elimina el registro
+      return manager.remove(eventParticipant);
+    });
+  }
 }

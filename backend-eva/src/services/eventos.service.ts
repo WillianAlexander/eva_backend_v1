@@ -154,4 +154,21 @@ export class EventosService {
       }
     });
   }
+
+  async updateEvent(id: number, partialEvent: Partial<Eventos>) {
+    return this.datasource.transaction(async (manager) => {
+      // Busca el evento existente
+      const existingEvent = await manager.findOneBy(Eventos, { id });
+
+      if (!existingEvent) {
+        throw new Error(`Event with ID ${id} not found.`);
+      }
+
+      // Combina los campos existentes con los nuevos
+      const updatedEvent = manager.merge(Eventos, existingEvent, partialEvent);
+
+      // Guarda los cambios
+      return manager.save(Eventos, updatedEvent);
+    });
+  }
 }
