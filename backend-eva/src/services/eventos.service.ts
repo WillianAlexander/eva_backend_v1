@@ -105,21 +105,27 @@ export class EventosService {
   async getRates() {
     try {
       const sql: string = `
-        SELECT 
-        DEPARTAMENTO, 
-        TOTAL, 
-        ( TOTAL / 15 ) PROMEDIO,
-        MES
-        FROM (SELECT
-        dp.NOMBRE AS DEPARTAMENTO,
-        SUM(criterio1 + criterio2 + criterio3 + criterio4) AS total,
-        UPPER(TO_CHAR(fevaluacion, 'TMMonth')) AS MES
-        FROM eva.evaluaciones
-        INNER JOIN eva.departamentos dp on (dp.id = evaluado_id and fhasta > current_date)
-        WHERE 
-        evento_id = (select max(id) from eva.eventos where fhasta > current_date and estado = 'CERRADO')
-        GROUP BY dp.NOMBRE, fevaluacion)
-        ORDER BY TOTAL DESC
+        SELECT
+              ROW_NUMBER() OVER (ORDER BY actual DESC) FILA,
+              dp.NOMBRE as departamento, 
+              COALESCE(actual, 0) AS total,
+              (actual / 15) as promedio,
+              mes
+            FROM (SELECT 
+                  evaluado_id, 
+                  evento_id,
+                  SUM(criterio1 + criterio2 + criterio3 + criterio4) AS actual,
+                  UPPER(TO_CHAR(fevaluacion, 'TMMonth')) AS MES
+                FROM eva.evaluaciones
+                WHERE evento_id = (select max(id) from eva.eventos where fhasta > current_date and estado = 'CERRADO')
+                AND EXISTS (
+                  SELECT 1
+                  FROM eva.evaluaciones e2 
+                  WHERE e2.evento_id = (select max(id) from eva.eventos where fhasta > current_date and estado = 'CERRADO')
+                )
+                GROUP BY evaluado_id, evento_id, fevaluacion)
+                INNER JOIN eva.departamentos dp on (dp.id = evaluado_id and fhasta > current_date)
+                ORDER BY actual DESC
       `;
 
       return await this.datasource.query(sql);
