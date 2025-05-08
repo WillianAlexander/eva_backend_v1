@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { Injectable } from '@nestjs/common';
@@ -206,10 +207,11 @@ export class EventosService {
       USR.USUARIO,
       DEP.ID,
       DEP.NOMBRE as departamento, 
-      ROUND(((totl / 15::double precision) * 100)::numeric, 2) AS porcentaje
+      ROUND(((totl / tevaluadores::double precision) * 100)::numeric, 2) AS porcentaje
       FROM (
           SELECT evaluador_id, 
-                 COUNT(evaluador_id) AS totl
+                 COUNT(evaluador_id) AS totl,
+                 (SELECT count(*) - 1 FROM EVA.EVENTOPARTICIPANTES WHERE EVENTO_ID = ${id}) as tevaluadores
           FROM eva.EVALUACIONES 
           WHERE evento_id = ${id}
           GROUP BY evaluador_id
@@ -229,17 +231,25 @@ export class EventosService {
   async unRatedDepartments(eventoId: number, usuario: string, idDep: number) {
     try {
       const query = `
-        SELECT  
-          DP.NOMBRE as departamento
-        FROM 
-          EVA.DEPARTAMENTOS DP
-        WHERE id NOT IN (
-          SELECT evaluado_id 
-          FROM EVA.EVALUACIONES 
-          WHERE evento_id = ${eventoId} 
-          AND evaluador_id = '${usuario}'
-        )
-        AND ID <> ${idDep}
+        SELECT
+        DP.NOMBRE as departamento
+        FROM
+            eva.EVENTOPARTICIPANTES EVP
+        LEFT JOIN 
+            eva.DEPARTAMENTOS DP 
+        ON 
+            ( 
+            DP.ID = EVP.participante_id 
+        AND DP.FHASTA > CURRENT_DATE )
+        WHERE
+            EVENTO_ID = 11
+            AND DP.ID NOT IN (
+                  SELECT evaluado_id 
+                  FROM EVA.EVALUACIONES 
+                  WHERE evento_id = ${eventoId}
+                  AND evaluador_id = '${usuario}'
+                )
+        AND DP.ID <> ${idDep}  
       `;
 
       const result = await this.datasource.query(query);
