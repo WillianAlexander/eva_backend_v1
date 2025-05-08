@@ -72,4 +72,60 @@ export class EventosController {
       );
     }
   }
+
+  @Get('/ready-to-close/:id')
+  async isReadyToClose(@Param('id') id: number) {
+    try {
+      const isReady = await this.eventoService.isEventReadyToClose(id);
+      return { eventId: id, readyToClose: isReady };
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          message: error.message || 'Error checking if event is ready to close',
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
+  @Get('/departments-progress/:id')
+  async getEventDepartmentProgress(@Param('id') id: number) {
+    try {
+      const progress = await this.eventoService.eventDeparmentProgress(id);
+      return { eventId: id, progress };
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          message: error.message || 'Error fetching department progress',
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
+  @Get('/unrated-departments/:eventoId/:usuario/:idDep')
+  async getUnRatedDepartments(
+    @Param('eventoId') eventoId: number,
+    @Param('usuario') usuario: string,
+    @Param('idDep') idDep: number,
+  ) {
+    try {
+      const result = await this.eventoService.unRatedDepartments(
+        eventoId,
+        usuario,
+        idDep,
+      );
+      return result;
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          message: error.message || 'Error fetching unrated departments',
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
 }

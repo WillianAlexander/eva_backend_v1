@@ -171,4 +171,92 @@ export class EventosService {
       return manager.save(Eventos, updatedEvent);
     });
   }
+
+  async isEventReadyToClose(id: number) {
+    try {
+      const query = `
+        SELECT CASE 
+                 WHEN COUNT(*) * (COUNT(*) - 1) = (
+                   SELECT COUNT(*) 
+                   FROM eva.evaluaciones 
+                   WHERE evento_id = ${id}
+                 ) THEN TRUE 
+                 ELSE FALSE 
+               END AS cumple
+        FROM eva.eventoparticipantes 
+        WHERE evento_id = ${id}
+      `;
+
+      const result = await this.datasource.query(query);
+
+      // Devuelve el resultado como un booleano
+      console.log(`Estado del evento conteo: ${result[0]?.cumple}`);
+      return result[0]?.cumple === true;
+    } catch (error) {
+      throw new Error(
+        `Error checking if event is ready to close: ${error.message}`,
+      );
+    }
+  }
+
+  async eventDeparmentProgress(id: number) {
+    try {
+      const query = `
+      SELECT
+      USR.USUARIO,
+      DEP.ID,
+      DEP.NOMBRE as departamento, 
+      ROUND(((totl / 15::double precision) * 100)::numeric, 2) AS porcentaje
+      FROM (
+          SELECT evaluador_id, 
+                 COUNT(evaluador_id) AS totl
+          FROM eva.EVALUACIONES 
+          WHERE evento_id = ${id}
+          GROUP BY evaluador_id
+      ) AS sub
+      INNER JOIN eva.USUARIOS USR ON (USR.USUARIO = sub.evaluador_id and USR.FHASTA > current_date)
+      INNER JOIN eva.DEPARTAMENTOS DEP ON (DEP.ID = USR.DEPARTAMENTO_ID AND DEP.FHASTA > current_date)
+      ORDER BY DEP.ID
+      `;
+
+      const result = await this.datasource.query(query);
+      return result;
+    } catch (error) {
+      throw new Error(`Error progreso departamentos: ${error.message}`);
+    }
+  }
+
+  async unRatedDepartments(eventoId: number, usuario: string, idDep: number) {
+    try {
+      const query = `
+        SELECT  
+          DP.NOMBRE as departamento
+        FROM 
+          EVA.DEPARTAMENTOS DP
+        WHERE id NOT IN (
+          SELECT evaluado_id 
+          FROM EVA.EVALUACIONES 
+          WHERE evento_id = ${eventoId} 
+          AND evaluador_id = '${usuario}'
+        )
+        AND ID <> ${idDep}
+      `;
+
+      const result = await this.datasource.query(query);
+
+      // Controla si la consulta devuelve un resultado vacío
+      if (result.length === 0) {
+        return { message: 'No unrated departments found', data: [] };
+      }
+
+      return {
+        message: 'Unrated departments retrieved successfully',
+        data: result,
+      };
+    } catch (error) {
+      throw new Error(
+        `Error al obtener departamentos sin calificación: ${error.message}`,
+      );
+    }
+  }
 }
