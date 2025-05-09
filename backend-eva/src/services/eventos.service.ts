@@ -41,57 +41,57 @@ export class EventosService {
   async getDetailEvent(eventoid: number) {
     try {
       const sql: string = `
-           SELECT 
+           SELECT
            NOMBRE as evaluado_id,
-           SUM(ACTUAL) as ACTUAL, 
+           SUM(ACTUAL) as ACTUAL,
            SUM(FILA) as posicion_actual,
            SUM(ANTERIOR) as ANTERIOR,
            SUM(FILA2) as posicion_anterior
            FROM ((SELECT
               ROW_NUMBER() OVER (ORDER BY actual DESC) FILA,
-              dp.NOMBRE, 
+              dp.NOMBRE,
               COALESCE(actual, 0) AS actual,
               0 FILA2,
               COALESCE(anterior, 0) AS anterior
-            FROM (SELECT 
-                  evaluado_id, 
-                  evento_id, 
+            FROM (SELECT
+                  evaluado_id,
+                  evento_id,
                   SUM(criterio1 + criterio2 + criterio3 + criterio4) AS actual,
                   0 anterior
                 FROM eva.evaluaciones
                 WHERE evento_id = ${eventoid}
                 AND EXISTS (
                   SELECT 1
-                  FROM eva.evaluaciones e2 
+                  FROM eva.evaluaciones e2
                   WHERE e2.evento_id = ${eventoid}
                 )
-                GROUP BY evaluado_id, evento_id)
+                GROUP BY evaluado_id, evento_id) as a
                 INNER JOIN eva.departamentos dp on (dp.id = evaluado_id and fhasta > current_date)
                 ORDER BY actual DESC)
                 UNION
             (SELECT
               0 FILA,
-              dp.NOMBRE, 
+              dp.NOMBRE,
               COALESCE(actual, 0) AS actual,
               ROW_NUMBER() OVER (ORDER BY anterior DESC) FILA2,
               COALESCE(anterior, 0) AS anterior
             FROM (
-              SELECT 
-                  evaluado_id, 
-                  evento_id, 
+              SELECT
+                  evaluado_id,
+                  evento_id,
                   0 actual,
                   SUM(criterio1 + criterio2 + criterio3 + criterio4) as anterior
                 FROM eva.evaluaciones
                 WHERE evento_id = (SELECT max(id) from eva.eventos where id < ${eventoid} and fhasta > current_date)
                 AND EXISTS (
                   SELECT 1
-                  FROM eva.evaluaciones e2 
+                  FROM eva.evaluaciones e2
                   WHERE e2.evento_id = ${eventoid}
                 )
                 GROUP BY evaluado_id, evento_id
                 ORDER BY evaluado_id, evento_id DESC
-              )
-              INNER JOIN eva.departamentos dp on (dp.id = evaluado_id and fhasta > current_date)))
+              ) as b
+              INNER JOIN eva.departamentos dp on (dp.id = evaluado_id and fhasta > current_date))) as c
               GROUP BY evaluado_id
               ORDER BY SUM(FILA) ASC
       `;
@@ -108,23 +108,23 @@ export class EventosService {
       const sql: string = `
         SELECT
               ROW_NUMBER() OVER (ORDER BY actual DESC) FILA,
-              dp.NOMBRE as departamento, 
-              COALESCE(actual, 0) AS total,
+              dp.NOMBRE as departamento,
+              (COALESCE(actual, 0)) AS total,
               (actual / 15) as promedio,
               mes
-            FROM (SELECT 
-                  evaluado_id, 
+            FROM (SELECT
+                  evaluado_id,
                   evento_id,
                   SUM(criterio1 + criterio2 + criterio3 + criterio4) AS actual,
-                  UPPER(TO_CHAR(fevaluacion, 'TMMonth')) AS MES
+                  UPPER(TO_CHAR(fevaluacion - INTERVAL '1 month', 'TMMonth')) AS mes
                 FROM eva.evaluaciones
-                WHERE evento_id = (select max(id) from eva.eventos where fhasta > current_date and estado = 'CERRADO')
+                WHERE evento_id = (select max(ev1.id) from eva.eventos ev1 where ev1.fhasta > current_date and ev1.estado = 'CERRADO')
                 AND EXISTS (
                   SELECT 1
-                  FROM eva.evaluaciones e2 
-                  WHERE e2.evento_id = (select max(id) from eva.eventos where fhasta > current_date and estado = 'CERRADO')
+                  FROM eva.evaluaciones e2
+                  WHERE e2.evento_id = (select max(ev2.id) from eva.eventos ev2 where ev2.fhasta > current_date and ev2.estado = 'CERRADO')
                 )
-                GROUP BY evaluado_id, evento_id, fevaluacion)
+                GROUP BY evaluado_id, evento_id, fevaluacion) as c
                 INNER JOIN eva.departamentos dp on (dp.id = evaluado_id and fhasta > current_date)
                 ORDER BY actual DESC
       `;
@@ -242,7 +242,7 @@ export class EventosService {
             DP.ID = EVP.participante_id 
         AND DP.FHASTA > CURRENT_DATE )
         WHERE
-            EVENTO_ID = 11
+            EVENTO_ID = ${eventoId}
             AND DP.ID NOT IN (
                   SELECT evaluado_id 
                   FROM EVA.EVALUACIONES 

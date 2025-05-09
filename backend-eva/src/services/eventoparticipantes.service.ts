@@ -55,4 +55,13 @@ export class EventoparticipantesService {
       return manager.remove(eventParticipant);
     });
   }
+
+  async findEventParticipant(idEvent: number, idParticipant: number) {
+    return this.datasource.manager.findOne(EventoParticipantes, {
+      where: {
+        evento_id: idEvent,
+        participante_id: idParticipant,
+      },
+    });
+  }
 }

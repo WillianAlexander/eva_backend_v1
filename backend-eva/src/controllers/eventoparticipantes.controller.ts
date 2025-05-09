@@ -22,6 +22,30 @@ export class EventoparticipantesController {
     return this.eventoparticipantesService.findByEvent(id);
   }
 
+  @Get('existencia/:eventoId/:participanteId')
+  async getEventParticipant(
+    @Param('eventoId') eventoId: number,
+    @Param('participanteId') participanteId: number,
+  ) {
+    const participant =
+      await this.eventoparticipantesService.findEventParticipant(
+        eventoId,
+        participanteId,
+      );
+
+    if (!participant) {
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          message: `No se encontró el participante con ID ${participanteId} en el evento con ID ${eventoId}.`,
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    return participant;
+  }
+
   @Post()
   registerEventParticipant(@Body() dto: CreateEventoParticipante) {
     return this.eventoparticipantesService.registerEventParticipant(dto);
