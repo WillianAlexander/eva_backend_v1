@@ -3,6 +3,8 @@ import {
   Controller,
   Delete,
   Get,
+  HttpException,
+  HttpStatus,
   Param,
   Post,
   UseGuards,
@@ -12,7 +14,7 @@ import { UsuariosService } from 'src/services/usuarios.service';
 import { JwtAuthGuard } from 'src/guards/jwt.guard';
 
 @Controller('usuarios')
-@UseGuards(JwtAuthGuard) // Aplica el guard a todas las rutas del controlador
+@UseGuards(JwtAuthGuard)
 export class UsuariosController {
   constructor(private usuariosService: UsuariosService) {}
 
@@ -32,8 +34,20 @@ export class UsuariosController {
   }
 
   @Post()
-  createUser(@Body() dto: CreateUsuarioDto) {
-    return this.usuariosService.createuser(dto);
+  async createUser(@Body() dto: CreateUsuarioDto) {
+    try {
+      return await this.usuariosService.createuser(dto);
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          code: error.code,
+          message: error.message || 'Error creating user',
+          detail: error.detail,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
   }
 
   @Delete(':usuario')
