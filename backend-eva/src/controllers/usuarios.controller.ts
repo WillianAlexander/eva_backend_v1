@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import {
   Body,
   Controller,
@@ -12,11 +14,15 @@ import {
 import { CreateUsuarioDto } from 'src/dto/usuario/create-usuario.dto';
 import { UsuariosService } from 'src/services/usuarios.service';
 import { JwtAuthGuard } from 'src/guards/jwt.guard';
+import { AuthService } from 'src/services/auth.service';
 
 @Controller('usuarios')
 @UseGuards(JwtAuthGuard)
 export class UsuariosController {
-  constructor(private usuariosService: UsuariosService) {}
+  constructor(
+    private usuariosService: UsuariosService,
+    private authService: AuthService,
+  ) {}
 
   @Get()
   findAll() {
@@ -36,7 +42,10 @@ export class UsuariosController {
   @Post()
   async createUser(@Body() dto: CreateUsuarioDto) {
     try {
-      return await this.usuariosService.createuser(dto);
+      const usuario = await this.usuariosService.createuser(dto);
+      const token = await this.authService.login(usuario);
+      console.log({ token });
+      return usuario;
     } catch (error) {
       throw new HttpException(
         {

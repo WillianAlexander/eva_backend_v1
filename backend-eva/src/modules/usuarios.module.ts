@@ -5,6 +5,7 @@ import { Usuarios } from 'src/entities/usuarios.entity';
 import { UsuariosService } from 'src/services/usuarios.service';
 import { JwtAuthGuard } from 'src/guards/jwt.guard';
 import { JwtModule } from '@nestjs/jwt';
+import { AuthService } from 'src/services/auth.service';
 
 @Module({
   controllers: [UsuariosController],
@@ -16,6 +17,6 @@ import { JwtModule } from '@nestjs/jwt';
       signOptions: { expiresIn: '10m' }, // Opcional: duración de los tokens
     }),
   ],
-  providers: [UsuariosService, JwtAuthGuard],
+  providers: [UsuariosService, JwtAuthGuard, AuthService],
 })
 export class UsuariosModule {}
