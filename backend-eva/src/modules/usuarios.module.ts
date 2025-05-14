@@ -13,7 +13,7 @@ import { AuthService } from 'src/services/auth.service';
   imports: [
     TypeOrmModule.forFeature([Usuarios]),
     JwtModule.register({
-      secret: 'cacpeg1*', // La misma que usas en Flutter para firmar
+      secret: process.env.JWT_SECRET, // La misma que usas en Flutter para firmar
       signOptions: { expiresIn: '10m' }, // Opcional: duración de los tokens
     }),
   ],

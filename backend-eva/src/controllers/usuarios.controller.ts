@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import {
@@ -14,15 +15,12 @@ import {
 import { CreateUsuarioDto } from 'src/dto/usuario/create-usuario.dto';
 import { UsuariosService } from 'src/services/usuarios.service';
 import { JwtAuthGuard } from 'src/guards/jwt.guard';
-import { AuthService } from 'src/services/auth.service';
+import { QueryFailedError } from 'typeorm';
 
 @Controller('usuarios')
 @UseGuards(JwtAuthGuard)
 export class UsuariosController {
-  constructor(
-    private usuariosService: UsuariosService,
-    private authService: AuthService,
-  ) {}
+  constructor(private usuariosService: UsuariosService) {}
 
   @Get()
   findAll() {
@@ -43,10 +41,26 @@ export class UsuariosController {
   async createUser(@Body() dto: CreateUsuarioDto) {
     try {
       const usuario = await this.usuariosService.createuser(dto);
-      const token = await this.authService.login(usuario);
-      console.log({ token });
       return usuario;
     } catch (error) {
+      if (
+        error instanceof QueryFailedError &&
+        error.driverError.code === '23505'
+      ) {
+        if (error.message.includes('usuarios_departamento_id_key')) {
+          throw new HttpException(
+            {
+              status: HttpStatus.BAD_REQUEST,
+              codigo: error.driverError.code,
+              constraint: error.driverError.constraint,
+              message: error.message || 'Error creating user',
+              detail: 'Ya existe un usuario con el departamento seleccionado',
+            },
+            HttpStatus.BAD_REQUEST,
+          );
+        }
+      }
+
       throw new HttpException(
         {
           status: HttpStatus.BAD_REQUEST,
@@ -57,6 +71,12 @@ export class UsuariosController {
         HttpStatus.BAD_REQUEST,
       );
     }
+  }
+
+  @Post('login')
+  async login(@Body() body: { usuario: string; password: string }) {
+    const { usuario, password } = body;
+    return this.usuariosService.login(usuario, password);
   }
 
   @Delete(':usuario')

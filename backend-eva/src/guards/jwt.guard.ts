@@ -9,6 +9,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import 'dotenv/config';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
@@ -29,12 +30,17 @@ export class JwtAuthGuard implements CanActivate {
 
     try {
       const payload = await this.jwtService.verifyAsync(token, {
-        secret: 'cacpeg1*', // La misma clave que en Flutter
+        secret: process.env.JWT_SECRET, // La misma clave que en Flutter
       });
 
       request.user = payload;
       return true;
     } catch (error) {
+      const tokenS = this.jwtService.sign(
+        {},
+        { secret: process.env.JWT_SECRET },
+      );
+      console.log(`token: ${tokenS}`);
       throw new UnauthorizedException(`Invalid token: ${error}`);
     }
   }

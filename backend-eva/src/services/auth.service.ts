@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/require-await */
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -7,17 +6,20 @@ import { JwtService } from '@nestjs/jwt';
 export class AuthService {
   constructor(private jwtService: JwtService) {}
 
-  async login(user: any) {
+  async login(user: {
+    nombres: string;
+    identificacion: string;
+    correo: string;
+  }) {
     const payload = {
-      nombres: user.nombres as string,
-      apellidos: user.apellidos as string,
-      correo: user.correo as string,
-      identificacion: user.identificacion as string,
+      nombres: user.nombres, // Nombre completo del usuario
+      correo: user.correo, // Correo electrónico
+      identificacion: user.identificacion, // Identificación del usuario
     };
 
     const token = this.jwtService.sign(payload, {
-      expiresIn: '7d', // válido por 7 días
-      secret: 'cacpeg1*', // usa env
+      expiresIn: '7d', // Token válido por 7 días
+      secret: process.env.JWT_SECRET, // Clave secreta desde las variables de entorno
     });
 
     return { access_token: token };
