@@ -56,7 +56,7 @@ export class EventosService {
             FROM (SELECT
                   evaluado_id,
                   evento_id,
-                  SUM(criterio1 + criterio2 + criterio3 + criterio4) AS actual,
+                  SUM(coalesce(criterio1, 0) + coalesce(criterio2, 0) + coalesce(criterio3, 0) + coalesce(criterio4, 0)) AS actual,
                   0 anterior
                 FROM eva.evaluaciones
                 WHERE evento_id = ${eventoid}
@@ -80,7 +80,7 @@ export class EventosService {
                   evaluado_id,
                   evento_id,
                   0 actual,
-                  SUM(criterio1 + criterio2 + criterio3 + criterio4) as anterior
+                  SUM(coalesce(criterio1, 0) + coalesce(criterio2, 0) + coalesce(criterio3, 0) + coalesce(criterio4, 0)) as anterior
                 FROM eva.evaluaciones
                 WHERE evento_id = (SELECT max(id) from eva.eventos where id < ${eventoid} and fhasta > current_date)
                 AND EXISTS (
@@ -115,7 +115,7 @@ export class EventosService {
             FROM (SELECT
                   evaluado_id,
                   evento_id,
-                  SUM(criterio1 + criterio2 + criterio3 + criterio4) AS actual,
+                  SUM(COALESCE(criterio1, 0) + COALESCE(criterio2, 0) + COALESCE(criterio3, 0) + COALESCE(criterio4, 0)) AS actual,
                   UPPER(TO_CHAR(fevaluacion - INTERVAL '1 month', 'TMMonth')) AS mes
                 FROM eva.evaluaciones
                 WHERE evento_id = (select max(ev1.id) from eva.eventos ev1 where ev1.fhasta > current_date and ev1.estado = 'CERRADO')

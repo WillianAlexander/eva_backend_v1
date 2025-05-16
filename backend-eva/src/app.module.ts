@@ -18,6 +18,7 @@ import { EventoparticipantesModule } from './modules/eventoparticipantes.module'
 import { EventoParticipantes } from './entities/eventoparticipantes.entity';
 import { CriteriosDetalle } from './entities/criterios-detalle.entity';
 import { CriteriosDetalleModule } from './modules/criterios_detalle.module';
+import { AuthModule } from './modules/auth.module';
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { CriteriosDetalleModule } from './modules/criterios_detalle.module';
     EvaluacionesModule,
     EventoparticipantesModule,
     CriteriosDetalleModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

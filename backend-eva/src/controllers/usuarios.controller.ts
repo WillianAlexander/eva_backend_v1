@@ -74,9 +74,22 @@ export class UsuariosController {
   }
 
   @Post('login')
-  async login(@Body() body: { usuario: string; password: string }) {
-    const { usuario, password } = body;
-    return this.usuariosService.login(usuario, password);
+  async login(
+    @Body() body: { usuario: string; password: string; token?: string },
+  ) {
+    try {
+      const { usuario, password, token } = body;
+      return await this.usuariosService.login(usuario, password, token);
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: error.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
+          message: error.message || 'Error interno del servidor',
+          details: error.details || null,
+        },
+        error.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   @Delete(':usuario')

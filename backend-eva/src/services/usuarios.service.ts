@@ -1,4 +1,4 @@
-/* eslint-disable prettier/prettier */
+/* eslint-disable @typescript-eslint/prefer-promise-reject-errors */
 /* eslint-disable @typescript-eslint/no-misused-promises */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
@@ -52,7 +52,11 @@ export class UsuariosService {
     });
   }
 
-  async login(usuario: string, password: string): Promise<any> {
+  async login(
+    usuario: string,
+    password: string,
+    clientToken?: string,
+  ): Promise<any> {
     const data = JSON.stringify({
       usuario,
       password,
@@ -62,8 +66,11 @@ export class UsuariosService {
       'Content-Type': 'application/json',
       'Content-Length': data.length.toString(),
     };
-    console.log(`Authorization: ${process.env.AUTHORIZATIONLOGIN}`);
-    headers['Authorization'] = 'rsYWvpruX4I4Pnp8ZZxiAb67TJxEu8LmaO868RXVnvdXU9m-qqQaFyUYVs16jZq695fcVfDlvIrcfIpax_ec_uiqrrvQdiwJNQ8O2MiRxZZ8rXZvtn_LlDR_5r3Fks54Gp0DkDq_PM-7NAgUSvDRfBrVI6VnLn1WDA9EJoBQAqVKK6OBIX-NJnOXmZxCeTidvHqIY0EE1SqyNCpZG60zckQJAzyReaS8w4do2V88_lr8JPgCCpnGNAZaoOPiaBR0KCL1vXvtmTePyMup0GBlDep_iZpl_DIR7CtrdPCPfqVZXMPjAnWmTKbhGox1Nghvk4Y&U5vR4Pb3B9Mp!VUYhM';
+
+    console.log(process.env.AUTHORIZATIONLOGIN);
+    // headers['Authorization'] = process.env.AUTHORIZATIONLOGIN;
+    headers['Authorization'] =
+      'rsYWvpruX4I4Pnp8ZZxiAb67TJxEu8LmaO868RXVnvdXU9m-qqQaFyUYVs16jZq695fcVfDlvIrcfIpax_ec_uiqrrvQdiwJNQ8O2MiRxZZ8rXZvtn_LlDR_5r3Fks54Gp0DkDq_PM-7NAgUSvDRfBrVI6VnLn1WDA9EJoBQAqVKK6OBIX-NJnOXmZxCeTidvHqIY0EE1SqyNCpZG60zckQJAzyReaS8w4do2V88_lr8JPgCCpnGNAZaoOPiaBR0KCL1vXvtmTePyMup0GBlDep_iZpl_DIR7CtrdPCPfqVZXMPjAnWmTKbhGox1Nghvk4Y&U5vR4Pb3B9Mp!VUYhM';
 
     const options = {
       hostname: '192.168.112.133',
@@ -86,21 +93,43 @@ export class UsuariosService {
             const externalResponse = JSON.parse(responseData);
 
             if (externalResponse.ok) {
-              // Firma el objeto recibido con AuthService
-              const signedToken = await this.authService.login({
-                nombres: externalResponse.data.nombreLegal,
-                identificacion: externalResponse.data.identifiacion,
-                correo: externalResponse.data.email,
-              });
+              // Si se envió un token desde el frontend, validarlo
+              if (clientToken) {
+                try {
+                  const validatedPayload =
+                    this.authService.validateToken(clientToken);
+                  resolve({
+                    ...externalResponse,
+                    token: clientToken, // Devuelve el token enviado por el cliente
+                    validatedPayload, // Devuelve el payload validado
+                  });
+                } catch (error) {
+                  reject({
+                    statusCode: 401,
+                    message: 'Token inválido o expirado',
+                    details: error.message,
+                  });
+                }
+              } else {
+                // Si no se envió un token, generar uno nuevo
+                const signedToken = await this.authService.login({
+                  usuario: usuario,
+                  nombres: externalResponse.data.nombreLegal,
+                  identificacion: externalResponse.data.identifiacion,
+                  correo: externalResponse.data.email,
+                });
 
-              resolve({
-                ...externalResponse,
-                token: signedToken.access_token, // Agrega el token firmado
-              });
+                resolve({
+                  ...externalResponse,
+                  token: signedToken.access_token, // Devuelve el token recién generado
+                });
+              }
             } else {
-              reject(
-                new Error('Error en la autenticación del backend externo.'),
-              );
+              reject({
+                statusCode: 401,
+                message: 'Error de autenticación',
+                details: externalResponse.messages,
+              });
             }
           } else {
             reject(
