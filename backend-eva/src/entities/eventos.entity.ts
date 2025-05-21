@@ -18,7 +18,7 @@ export class Eventos {
   @Column({ type: 'date', nullable: false })
   fevento: Date;
 
-  @Column({ type: 'varchar', length: 500, nullable: true })
+  @Column({ type: 'varchar', length: 2000, nullable: true })
   observacion: string;
 
   @Column({

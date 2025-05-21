@@ -19,16 +19,17 @@ import { EventoParticipantes } from './entities/eventoparticipantes.entity';
 import { CriteriosDetalle } from './entities/criterios-detalle.entity';
 import { CriteriosDetalleModule } from './modules/criterios_detalle.module';
 import { AuthModule } from './modules/auth.module';
+import { PdfModule } from './modules/pdf.module';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'localhost',
-      port: 5433,
+      host: '192.168.2.140',
+      port: 5432,
       username: 'postgres',
-      password: 'root',
-      database: 'EVA',
+      password: 'certApp-2023',
+      database: 'cacpeg_virtual',
       schema: 'eva',
       entities: [
         Usuarios,
@@ -52,6 +53,7 @@ import { AuthModule } from './modules/auth.module';
     EventoparticipantesModule,
     CriteriosDetalleModule,
     AuthModule,
+    PdfModule,
   ],
   controllers: [AppController],
   providers: [AppService],

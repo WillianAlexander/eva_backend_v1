@@ -269,4 +269,35 @@ export class EventosService {
       );
     }
   }
+
+  async saveCommentEvent(id: number, comentario: string) {
+    return this.datasource.transaction(async (manager) => {
+      // Busca el evento existente
+      const existingEvent = await manager.findOneBy(Eventos, { id });
+
+      if (!existingEvent) {
+        throw new Error(`Event with ID ${id} not found.`);
+      }
+
+      if (!comentario || comentario.trim() === '') {
+        throw new Error('El comentario no puede estar vacío.');
+      }
+
+      // Combina los campos existentes con los nuevos
+      const updatedEvent = manager.merge(Eventos, existingEvent, {
+        observacion: comentario,
+      });
+
+      // Guarda los cambios
+      try {
+        const savedEvent = await manager.save(Eventos, updatedEvent);
+        return {
+          message: 'Comentario guardado exitosamente',
+          event: savedEvent,
+        };
+      } catch (error) {
+        throw new Error(`Error al guardar el comentario: ${error.message}`);
+      }
+    });
+  }
 }

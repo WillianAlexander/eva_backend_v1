@@ -126,4 +126,25 @@ export class EventosController {
       );
     }
   }
+
+  @Patch('/comentario/:id')
+  async saveComment(
+    @Param('id') id: number,
+    @Body('comentario') comentario: string,
+  ) {
+    try {
+      const result = await this.eventoService.saveCommentEvent(id, comentario);
+      return {
+        data: result,
+      };
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          message: error.message || 'Error al guardar el comentario',
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
 }
