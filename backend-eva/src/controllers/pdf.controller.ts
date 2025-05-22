@@ -33,12 +33,13 @@ export class PdfController {
       }
 
       // Genera el PDF y obtén tanto el path como el base64
-      const { path, base64 } = await this.pdfService.generateRankingPDF(data);
+      const { pathUrl, base64 } =
+        await this.pdfService.generateRankingPDF(data);
 
       // Devuelve el path y el base64
       return {
         message: 'PDF generado exitosamente',
-        path,
+        pathUrl,
         pdfBase64: base64,
       };
     } catch (error) {

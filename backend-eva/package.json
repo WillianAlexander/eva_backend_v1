@@ -28,6 +28,8 @@
     "@nestjs/typeorm": "^11.0.0",
     "class-validator": "^0.14.1",
     "dotenv": "^16.5.0",
+    "jspdf": "^3.0.1",
+    "jspdf-autotable": "^5.0.2",
     "passport": "^0.7.0",
     "pdfmake": "^0.2.20",
     "pg": "^8.15.0",
