@@ -4,10 +4,11 @@
 // src/pdf/pdf.controller.ts
 import {
   Controller,
-  Get,
   Param,
   HttpException,
   HttpStatus,
+  Body,
+  Post,
 } from '@nestjs/common';
 import { PdfService } from 'src/services/pdf.service';
 import { EventosService } from 'src/services/eventos.service';
@@ -19,9 +20,22 @@ export class PdfController {
     private readonly eventosService: EventosService,
   ) {}
 
-  @Get('ranking/:eventoid')
-  async generatePDF(@Param('eventoid') eventoid: number) {
+  @Post('ranking/:eventoid')
+  async generatePDF(
+    @Param('eventoid') eventoid: number,
+    @Body() body: { titulo: string; encabezados: string[] },
+  ) {
     try {
+      const { titulo, encabezados } = body;
+
+      // Validar que el cuerpo de la solicitud tenga los datos necesarios
+      if (!titulo || !encabezados || encabezados.length !== 3) {
+        throw new HttpException(
+          'El cuerpo de la solicitud debe incluir un título y tres encabezados',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
       // Obtén los datos del evento desde EventosService
       const data = await this.eventosService.getDetailEvent(eventoid);
       console.log(`data: ${JSON.stringify(data)}`);
@@ -33,8 +47,11 @@ export class PdfController {
       }
 
       // Genera el PDF y obtén tanto el path como el base64
-      const { pathUrl, base64 } =
-        await this.pdfService.generateRankingPDF(data);
+      const { pathUrl, base64 } = await this.pdfService.generateRankingPDF(
+        data,
+        titulo,
+        encabezados,
+      );
 
       // Devuelve el path y el base64
       return {

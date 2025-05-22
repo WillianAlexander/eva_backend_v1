@@ -1,5 +1,7 @@
-/* eslint-disable @typescript-eslint/prefer-promise-reject-errors */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/require-await */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 // src/pdf/pdf.service.ts
@@ -13,6 +15,8 @@ import autoTable from 'jspdf-autotable';
 export class PdfService {
   async generateRankingPDF(
     data: any[],
+    titulo: string,
+    encabezados: string[],
     pathUrl = './ranking.pdf',
   ): Promise<{ pathUrl: string; base64: string }> {
     const doc = new jsPDF({
@@ -21,39 +25,103 @@ export class PdfService {
       format: 'a4',
     });
 
-    // Título
-    doc.setFontSize(18);
-    doc.text(
-      'Ranking Departamental',
-      doc.internal.pageSize.getWidth() / 2,
-      40,
-      { align: 'center' },
-    );
+    // Agrega la fuente NotoColorEmoji-Regular.ttf
+    const emojiFontPath = './src/assets/fonts/noto/NotoColorEmoji-Regular.ttf';
+    // const emojiFontPath = path.resolve(
+    //   __dirname,
+    //   '../../../src/assets/fonts/noto/NotoColorEmoji-Regular.ttf',
+    // );
 
-    // Construye los datos de la tabla
+    // Verifica si el archivo existe
+    if (!fs.existsSync(emojiFontPath)) {
+      throw new Error(
+        `El archivo de fuente no se encuentra en la ruta: ${emojiFontPath}`,
+      );
+    }
+
+    const emojiFont = fs.readFileSync(emojiFontPath, 'base64');
+    doc.addFileToVFS('NotoColorEmoji-Regular.ttf', emojiFont);
+    doc.addFont('NotoColorEmoji-Regular.ttf', 'NotoEmoji', 'normal');
+    // doc.setFont('NotoEmoji');
+
+    // Agrega otra fuente, por ejemplo, Century Gothic
+    const centuryGothicFontPath =
+      './src/assets/fonts/century/CenturyGothic.ttf';
+    const centuryGothicFont = fs.readFileSync(centuryGothicFontPath, 'base64');
+    doc.addFileToVFS('CenturyGothic.ttf', centuryGothicFont);
+    doc.addFont('CenturyGothic.ttf', 'CenturyGothic', 'normal');
+
+    // Agrega otra fuente, por ejemplo, Century Gothic Bold
+    const centuryGothicBoldPath =
+      './src/assets/fonts/century/century-gothic-bold.ttf';
+    const centuryGothicBold = fs.readFileSync(centuryGothicBoldPath, 'base64');
+    doc.addFileToVFS('century-gothic-bold.ttf', centuryGothicBold);
+    doc.addFont('century-gothic-bold.ttf', 'CenturyGothicBold', 'normal');
+
+    // Título
+    doc.setFont('CenturyGothicBold');
+    doc.setFontSize(15);
+    doc.text(titulo, doc.internal.pageSize.getWidth() / 2, 40, {
+      align: 'center',
+    });
+
+    // Funciones para determinar el rango de las posiciones
+    const isPosicionActualEnTop5 = (posicion: string) => {
+      const pos = parseInt(posicion, 10);
+      return pos >= 1 && pos <= 5;
+    };
+
+    const isPosicionActualEnTop12 = (posicion: string) => {
+      const pos = parseInt(posicion, 10);
+      return pos >= 6 && pos <= 12;
+    };
+
+    const isPosicionActualEnTop16 = (posicion: string) => {
+      const pos = parseInt(posicion, 10);
+      return pos >= 13;
+    };
+
+    // Construye los datos de la tabla con estilos condicionales
     const tableBody = data.map((row) => [
-      row.posicion_anterior,
-      row.posicion_actual,
-      row.evaluado_id,
+      {
+        content: row.posicion_anterior == 0 ? '' : row.posicion_anterior,
+        styles: isPosicionActualEnTop5(row.posicion_anterior)
+          ? { fillColor: [0, 142, 60] } // Verde para Top 5
+          : isPosicionActualEnTop12(row.posicion_anterior)
+            ? { fillColor: [255, 165, 0] } // Amarillo para Top 6-12
+            : isPosicionActualEnTop16(row.posicion_anterior)
+              ? { fillColor: [255, 0, 0] } // Rojo para Top 13+
+              : {},
+      },
+      {
+        content: row.posicion_actual == 0 ? '' : row.posicion_actual,
+        styles: isPosicionActualEnTop5(row.posicion_actual)
+          ? { fillColor: [0, 142, 60] } // Verde para Top 5
+          : isPosicionActualEnTop12(row.posicion_actual)
+            ? { fillColor: [255, 165, 0] } // Amarillo para Top 6-12
+            : isPosicionActualEnTop16(row.posicion_actual)
+              ? { fillColor: [255, 0, 0] } // Rojo para Top 13+
+              : {},
+      },
+      row.evaluado_id, // Columna sin estilos
     ]);
 
     autoTable(doc, {
-      head: [
-        ['RANKING \nFEBRERO \n2025', 'RANKING \nMARZO \n2025', 'DEPARTAMENTO'],
-      ],
+      head: [encabezados],
       body: tableBody,
       startY: 60,
       styles: {
         halign: 'center', // Centrado horizontal
         valign: 'middle', // Centrado vertical
-        font: 'helvetica',
+        font: 'CenturyGothic',
         fontSize: 11,
-        cellPadding: 10,
+        cellPadding: 5,
       },
       headStyles: {
-        fillColor: [41, 128, 185],
-        textColor: 255,
-        fontStyle: 'bold',
+        fillColor: [255, 255, 255],
+        textColor: 20,
+        fontStyle: 'normal',
+        font: 'CenturyGothicBold', // Cambia la fuente a Century Gothic
         halign: 'center',
         valign: 'middle',
       },
@@ -68,11 +136,39 @@ export class PdfService {
       columnStyles: {
         0: { cellWidth: 'auto' },
         1: { cellWidth: 'auto' },
-        2: { cellWidth: 'auto', halign: 'left' },
+        2: { cellWidth: 'auto', halign: 'left', fillColor: [255, 255, 255] },
       },
       rowPageBreak: 'avoid',
       tableLineWidth: 0.5,
       tableLineColor: [0, 0, 0],
+      didDrawCell: (data) => {
+        const { column, row, table } = data;
+        const cell = data.cell;
+
+        // Dibuja líneas horizontales grises
+        if (row.index < table.body.length - 1) {
+          doc.setDrawColor(191, 191, 191); // Gris
+          doc.setLineWidth(0.5);
+          doc.line(
+            cell.x,
+            cell.y + cell.height,
+            cell.x + cell.width,
+            cell.y + cell.height,
+          );
+        }
+
+        // Dibuja líneas verticales negras
+        if (column.index < table.columns.length - 1) {
+          doc.setDrawColor(0, 0, 0); // Negro
+          doc.setLineWidth(0.5);
+          doc.line(
+            cell.x + cell.width,
+            cell.y,
+            cell.x + cell.width,
+            cell.y + cell.height,
+          );
+        }
+      },
     });
 
     // Guarda el PDF en el sistema de archivos
