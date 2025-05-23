@@ -25,12 +25,15 @@ export class PdfService {
       format: 'a4',
     });
 
+    console.log(`process.cwd(): ${process.cwd()}`);
     // Agrega la fuente NotoColorEmoji-Regular.ttf
-    const emojiFontPath = './src/assets/fonts/noto/NotoColorEmoji-Regular.ttf';
+    // const emojiFontPath = 'src/assets/fonts/noto/NotoColorEmoji-Regular.ttf';
     // const emojiFontPath = path.resolve(
-    //   __dirname,
-    //   '../../../src/assets/fonts/noto/NotoColorEmoji-Regular.ttf',
+    //   process.cwd(),
+    //   'src/assets/fonts/noto/NotoColorEmoji-Regular.ttf',
     // );
+    const emojiFontPath =
+      '/app/dist/assets/fonts/noto/NotoColorEmoji-Regular.ttf';
 
     // Verifica si el archivo existe
     if (!fs.existsSync(emojiFontPath)) {
@@ -45,15 +48,14 @@ export class PdfService {
     // doc.setFont('NotoEmoji');
 
     // Agrega otra fuente, por ejemplo, Century Gothic
-    const centuryGothicFontPath =
-      './src/assets/fonts/century/CenturyGothic.ttf';
+    const centuryGothicFontPath = '/app/dist/assets/fonts/century/CenturyGothic.ttf';
     const centuryGothicFont = fs.readFileSync(centuryGothicFontPath, 'base64');
     doc.addFileToVFS('CenturyGothic.ttf', centuryGothicFont);
     doc.addFont('CenturyGothic.ttf', 'CenturyGothic', 'normal');
 
     // Agrega otra fuente, por ejemplo, Century Gothic Bold
     const centuryGothicBoldPath =
-      './src/assets/fonts/century/century-gothic-bold.ttf';
+      '/app/dist/assets/fonts/century/century-gothic-bold.ttf';
     const centuryGothicBold = fs.readFileSync(centuryGothicBoldPath, 'base64');
     doc.addFileToVFS('century-gothic-bold.ttf', centuryGothicBold);
     doc.addFont('century-gothic-bold.ttf', 'CenturyGothicBold', 'normal');

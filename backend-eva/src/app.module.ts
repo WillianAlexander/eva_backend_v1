@@ -25,11 +25,11 @@ import { PdfModule } from './modules/pdf.module';
   imports: [
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: '192.168.2.140',
+      host: 'localhost',
       port: 5432,
       username: 'postgres',
-      password: 'certApp-2023',
-      database: 'cacpeg_virtual',
+      password: 'root',
+      database: 'EVA',
       schema: 'eva',
       entities: [
         Usuarios,
