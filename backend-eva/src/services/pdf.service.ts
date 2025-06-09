@@ -48,7 +48,8 @@ export class PdfService {
     // doc.setFont('NotoEmoji');
 
     // Agrega otra fuente, por ejemplo, Century Gothic
-    const centuryGothicFontPath = '/app/dist/assets/fonts/century/CenturyGothic.ttf';
+    const centuryGothicFontPath =
+      '/app/dist/assets/fonts/century/CenturyGothic.ttf';
     const centuryGothicFont = fs.readFileSync(centuryGothicFontPath, 'base64');
     doc.addFileToVFS('CenturyGothic.ttf', centuryGothicFont);
     doc.addFont('CenturyGothic.ttf', 'CenturyGothic', 'normal');
